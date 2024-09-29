@@ -1,24 +1,27 @@
-import logo from './logo.svg';
-import './App.css';
+import './App.scss'
+import AuthProvider from "react-auth-kit";
+import createStore from 'react-auth-kit/createStore';
+import {BrowserRouter as Router, Route , Routes } from "react-router-dom";
+import MainPage from "./pages/MainPage";
+
+
+const store = createStore({
+  authName:'_auth',
+  authType:'cookie',
+  cookieDomain: window.location.hostname,
+  cookieSecure: window.location.protocol === 'https:',
+});
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    localStorage.removeItem('access_token');
+    return (
+      <AuthProvider store={store}>
+          <Router>
+              <Routes>
+                  <Route path="/" element={<MainPage/>}/>
+              </Routes>
+          </Router>
+      </AuthProvider>
   );
 }
 
