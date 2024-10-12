@@ -1,5 +1,6 @@
 package com.backend.main;
 
+import com.backend.body.Directory;
 import com.backend.body.VideoInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,8 +19,8 @@ public class UploadController {
     }
 
     @GetMapping("/dir")
-    public ResponseEntity<String> directory() {
-        String dir = uploadService.createDir();
+    public ResponseEntity<Directory> directory() {
+        Directory dir = uploadService.createDir();
         if (dir == null)
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         return ResponseEntity.status(HttpStatus.CREATED).body(dir);

@@ -1,5 +1,6 @@
 package com.backend.main;
 
+import com.backend.body.Directory;
 import com.backend.body.VideoInfo;
 import com.backend.db.table.Video;
 import com.backend.db.table.VideoRep;
@@ -26,7 +27,7 @@ public class UploadService {
 
     private final String currentDir = System.getProperty("user.dir");
 
-    public String createDir() {
+    public Directory createDir() {
         String newId = UUID.randomUUID().toString();
         File videoDir = new File(currentDir + "/src/temp/" + newId + "/video");
 
@@ -35,7 +36,8 @@ public class UploadService {
             cleanup(newId);
             return null;
         }
-        return videoDir.getAbsolutePath();
+
+        return new Directory(newId, videoDir.getAbsolutePath());
     }
     public boolean saveMetadata(VideoInfo videoInfo) {
         System.out.println("Saving metadata in database...");
