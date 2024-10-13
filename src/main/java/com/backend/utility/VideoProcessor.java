@@ -54,7 +54,7 @@ public class VideoProcessor {
         String[] command = {
                 "ffmpeg",
                 "-i", input,
-                "-vf", "\"select=eq(n\\,0),scale=640:-1\"",
+                "-vf", "select=eq(n\\,0),scale=640:-1",
                 "-vsync", "vfr",
                 output
         };
