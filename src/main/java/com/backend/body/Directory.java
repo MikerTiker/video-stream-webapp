@@ -6,4 +6,10 @@ public class Directory {
         this.id = id;
         this.directory = directory;
     }
+    public String getId() {
+        return id;
+    }
+    public String getDirectory() {
+        return directory;
+    }
 }
