@@ -54,7 +54,7 @@ const VideoUpload = () => {
 
 
                 // if (videoUploadSuccess) {
-                    const uploadResponse = await apiClient.post('/upload', payload,);
+                    const uploadResponse = await apiClient.post('/upload', payload);
                     setUploadStatus('Video uploaded successfully!');
                     console.log(uploadResponse.data);
                 // } else {
