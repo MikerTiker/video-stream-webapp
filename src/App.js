@@ -3,6 +3,7 @@ import AuthProvider from "react-auth-kit";
 import createStore from 'react-auth-kit/createStore';
 import {BrowserRouter as Router, Route , Routes } from "react-router-dom";
 import MainPage from "./pages/MainPage";
+import UploadVideo from "./pages/UploadVideo";
 
 
 const store = createStore({
@@ -18,6 +19,7 @@ function App() {
       <AuthProvider store={store}>
           <Router>
               <Routes>
+                  <Route path="/upload-video" element={<UploadVideo/>} />
                   <Route path="/" element={<MainPage/>}/>
               </Routes>
           </Router>
