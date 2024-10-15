@@ -20,6 +20,7 @@ function App() {
           <Router>
               <Routes>
                   <Route path="/upload-video" element={<UploadVideo/>} />
+                  <Route path="/test" element={<MainPage/>}/>
                   <Route path="/" element={<MainPage/>}/>
               </Routes>
           </Router>

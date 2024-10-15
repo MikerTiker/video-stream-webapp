@@ -39,6 +39,11 @@ const CustomMenuIcon = ({className}) => {
                         Upload Video
                     </div>
                 </Link>
+                <Link to={'/test'}>
+                    <div className={"cursor-pointer w-fit whitespace-nowrap"}>
+                        test
+                    </div>
+                </Link>
 
                 {/*{isAuthenticated &&*/}
                 {/*    <Link to={'/login'}>*/}
