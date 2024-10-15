@@ -34,7 +34,7 @@ public class UploadService {
         boolean successful = videoDir.mkdirs();
         if (!successful) {
             cleanup(newId);
-            System.err.println("Directory creation failed.");
+            System.err.println("Directory creation FAILED");
             return null;
         }
 
@@ -51,6 +51,7 @@ public class UploadService {
 
     public boolean saveMetadata(String videoId, VideoInfo videoInfo) {
         System.out.println("Saving metadata in database...");
+
         Video video = new Video();
         video.setVideoId(videoId);
         video.setTitle(videoInfo.getTitle());
@@ -64,6 +65,7 @@ public class UploadService {
 
     public boolean segmentVideo(String id) {
         System.out.println("Segmenting target video...");
+
         String segmentDirStr = currentDir + "/src/temp/" + id + "/segment";
         String videoDirStr = currentDir + "/src/temp/" + id + "/video";
 
@@ -98,6 +100,7 @@ public class UploadService {
     }
     public byte[] captureThumbnail(String id) {
         System.out.println("Capturing thumbnail...");
+
         String thumbDirStr = currentDir + "/src/temp/" + id + "/thumbnail";
         String videoDirStr = currentDir + "/src/temp/" + id + "/video";
 
@@ -153,6 +156,7 @@ public class UploadService {
 
     public boolean uploadToCloud(String id) {
         System.out.println("Uploading segments to cloud...");
+
         GoogleDriveUploader uploader = new GoogleDriveUploader(id);
 
         File segmentDir = new java.io.File(currentDir + "/src/temp/" + id + "/segment");
@@ -214,7 +218,7 @@ public class UploadService {
     public void cleanup(String id) {
         boolean cleaned = remains(id);
         if (!cleaned) {
-            System.err.println("Cleanup failed: " + id);
+            System.err.println("Cleanup FAILED: " + id);
         }
     }
 }
