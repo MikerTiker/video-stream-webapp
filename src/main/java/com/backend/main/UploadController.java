@@ -1,12 +1,12 @@
 package com.backend.main;
 
-import com.backend.body.Directory;
 import com.backend.body.VideoInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -18,31 +18,25 @@ public class UploadController {
         this.uploadService = uploadService;
     }
 
-    @GetMapping("/dir")
-    public ResponseEntity<Directory> directory() {
-        Directory dir = uploadService.createDir();
-        if (dir == null)
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        return ResponseEntity.status(HttpStatus.CREATED).body(dir);
-    }
-
     @Transactional
     @PostMapping("/upload")
-    public ResponseEntity<String> save(@RequestBody VideoInfo videoInfo) {
+    public ResponseEntity<String> save(@RequestPart("video") MultipartFile multipartFile,
+                                       @RequestPart("metadata") VideoInfo videoInfo) {
 
-        if (videoInfo.getId() == null)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Video ID cannot be NULL!");
         if (videoInfo.getTitle() == null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Title value cannot be NULL!");
 
-        String videoId = videoInfo.getId();
+        String videoId = uploadService.getVideo(multipartFile);
+        if (videoId == null)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Video upload failed.");
+
         if (videoInfo.getThumbnail() == null) {
             byte[] result = uploadService.captureThumbnail(videoId);
             videoInfo.setThumbnail(result);
         }
 
         // -- save videoInfo in database
-        boolean saved = uploadService.saveMetadata(videoInfo);
+        boolean saved = uploadService.saveMetadata(videoId, videoInfo);
         if (!saved)
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Metadata save failed!");
 

@@ -1,12 +1,9 @@
 package com.backend.body;
 
 public class VideoInfo {
-    private String id, title, description;
+    private String title, description;
     private byte[] thumbnail;
 
-    public String getId() {
-        return id;
-    }
     public String getTitle() {
         return title;
     }

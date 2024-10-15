@@ -1,6 +1,5 @@
 package com.backend.main;
 
-import com.backend.body.Directory;
 import com.backend.body.VideoInfo;
 import com.backend.db.table.Video;
 import com.backend.db.table.VideoRep;
@@ -8,6 +7,7 @@ import com.backend.utility.GoogleDriveUploader;
 import com.backend.utility.VideoProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,22 +27,32 @@ public class UploadService {
 
     private final String currentDir = System.getProperty("user.dir");
 
-    public Directory createDir() {
+    public String getVideo(MultipartFile file) {
         String newId = UUID.randomUUID().toString();
         File videoDir = new File(currentDir + "/src/temp/" + newId + "/video");
 
         boolean successful = videoDir.mkdirs();
         if (!successful) {
             cleanup(newId);
+            System.err.println("Directory creation failed.");
             return null;
         }
 
-        return new Directory(newId, videoDir.getAbsolutePath());
+        try {
+            Path path = Paths.get(videoDir + "/" + file.getOriginalFilename());
+            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+            return null;
+        }
+
+        return newId;
     }
-    public boolean saveMetadata(VideoInfo videoInfo) {
+
+    public boolean saveMetadata(String videoId, VideoInfo videoInfo) {
         System.out.println("Saving metadata in database...");
         Video video = new Video();
-        video.setVideoId(videoInfo.getId());
+        video.setVideoId(videoId);
         video.setTitle(videoInfo.getTitle());
         video.setDescription(videoInfo.getDescription());
         video.setThumbnail(videoInfo.getThumbnail());
