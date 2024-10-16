@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, {useRef, useState} from 'react';
 import apiClient from "../../Api";
+import { Oval } from 'react-loader-spinner';
 
 const VideoUpload = () => {
     const [videoFile, setVideoFile] = useState(null);
@@ -7,6 +8,11 @@ const VideoUpload = () => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [uploadStatus, setUploadStatus] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [progress, setProgress] = useState(0);
+
+    const videoInputRef = useRef(null);
+    const thumbnailInputRef = useRef(null);
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
@@ -26,48 +32,74 @@ const VideoUpload = () => {
         }
     };
 
+    const fileToBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const base64String = reader.result.split(',')[1];
+                resolve(base64String);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    };
+
+
     const handleUpload = async () => {
-        if (!videoFile) {
-            alert('Please select a video file to upload.');
+        if (!videoFile || !title) {
+            alert('Please upload a video and provide a title.');
             return;
         }
-        if (!title) {
-            alert('Title is required.');
-            return;
-        }
+
+        setIsLoading(true);
+        setUploadStatus('');
+        setProgress(0);
 
         try {
-            const response = await apiClient.get('/dir');
-            const { id, directory } = response.data;
+            const formData = new FormData();
+            formData.append('video', videoFile);
 
-            const reader = new FileReader();
-            reader.readAsArrayBuffer(thumbnailFile);
-            reader.onloadend = async () => {
-                const thumbnailArrayBuffer = reader.result;
+            // Convert thumbnail to byte array (base64)
+            const thumbnailBase64 = thumbnailFile ? await fileToBase64(thumbnailFile) : null;
 
-                const payload = {
-                    id: id,
-                    title: title,
-                    description: description,
-                    thumbnail: thumbnailArrayBuffer
-                };
+            // metadata object
+            const payload = JSON.stringify ({
+                title: title,
+                description: description,
+                thumbnail: thumbnailBase64
+            });
 
+            formData.append('metadata', new Blob([payload], { type: 'application/json' }));
 
-                // if (videoUploadSuccess) {
-                    const uploadResponse = await apiClient.post('/upload', payload,);
-                    setUploadStatus('Video uploaded successfully!');
-                    console.log(uploadResponse.data);
-                // } else {
-                    setUploadStatus('Failed to save the video file to the directory.');
-                // }
-            };
+            const uploadResponse = await apiClient.post('/upload', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+                onUploadProgress: (progressEvent) => {
+                    const total = progressEvent.total;
+                    const current = progressEvent.loaded;
+                    const percentCompleted = Math.round((current / total) * 100);
+                    setProgress(percentCompleted);
+                },
+            });
 
-            reader.onerror = () => {
-                alert('Error reading thumbnail file.');
-            };
+            console.log("Upload file successful", uploadResponse);
+            alert(uploadResponse.data.message)
+            setUploadStatus(uploadResponse.data.message);
 
-        } catch (err) {
-            setUploadStatus('Error: ' + err.message);
+            // Reset form fields after successful upload
+            setTitle('');
+            setDescription('');
+            setVideoFile(null);
+            setThumbnailFile(null);
+            videoInputRef.current.value = '';
+            thumbnailInputRef.current.value = '';
+
+        } catch (error) {
+            console.error("Error uploading file", error);
+            setUploadStatus("Error during upload.");
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -91,23 +123,58 @@ const VideoUpload = () => {
                         onChange={(e) => setDescription(e.target.value)}
                     />
                 </div>
-
                 <div className={"flex gap-2 items-center"}>
                     <div>Video upload:</div>
-                    <input type="file" accept="video/*" onChange={handleFileChange} required />
+                    <input
+                        type="file"
+                        accept="video/*"
+                        disabled={isLoading}
+                        ref={videoInputRef}
+                        onChange={handleFileChange} required />
                 </div>
                 <div className={"flex gap-2 items-center"}>
                     <div>Thumbnail image:</div>
-                    <input type="file" accept="image/*" onChange={handleThumbnailChange} />
+                    <input
+                        type="file"
+                        accept="image/*"
+                        disabled={isLoading}
+                        ref={thumbnailInputRef}
+                        onChange={handleThumbnailChange} />
                 </div>
 
-                <button
-                    onClick={handleUpload}
-                    className={"bg-blue-700 text-white p-4 rounded-16"}
-                >
-                    Upload Video
-                </button>
-                {uploadStatus && <p>{uploadStatus}</p>}
+                <div className="flex flex-col gap-4 w-full items-center">
+
+                    <button
+                        onClick={handleUpload}
+                        className={"bg-blue-700 text-white p-4 rounded-16 w-fit flex items-center justify-center relative"}
+                        disabled={isLoading}
+                    >
+                        {isLoading && (
+                            <Oval
+                                height={20}
+                                width={20}
+                                color="#fff" // Spinner color
+                                wrapperStyle={{marginRight: '8px'}}
+                                visible={true}
+                                ariaLabel='oval-loading'
+                                secondaryColor="#fff"/>
+                        )}
+                        {isLoading ? 'Uploading...' : 'Upload Video'}
+                    </button>
+
+                    {isLoading && (
+                        <div className="w-full h-2 bg-gray-200 rounded-20">
+                            <div
+                                className="bg-blue-600 h-full rounded-20"
+                                style={{width: `${progress}%`}}
+                            ></div>
+                        </div>
+                    )}
+                </div>
+
+                {uploadStatus &&
+                    <p>{uploadStatus}</p>
+                }
             </div>
         </div>
     );

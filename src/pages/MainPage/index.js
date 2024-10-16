@@ -1,7 +1,6 @@
 import React from 'react';
 import CustomMenuIcon from "../../Components/CustomMenuIcon";
 import ReactPlayer from "react-player/lazy";
-import testVideo from "../../Assets/videoTest2.mp4";
 
 const MainPage = () => {
     return (
@@ -16,7 +15,7 @@ const MainPage = () => {
                         <div className={"rounded-24 m-5"}>
                             <ReactPlayer
                                 controls={true}
-                                url={testVideo}
+                                // url={testVideo}
                                 light={<img src='/media/khare-khoob.jpeg' alt='Thumbnail'/>}
                                 style={{
                                     borderRadius: "16px 16px 16px 16px"
@@ -39,7 +38,7 @@ const MainPage = () => {
                         <div className={"rounded-24 m-5"}>
                             <ReactPlayer
                                 controls={true}
-                                url={testVideo}
+                                // url={testVideo}
                                 light={<img src='/media/khare-khoob.jpeg' alt='Thumbnail'/>}
                                 style={{
                                     borderRadius: "16px 16px 16px 16px"
@@ -62,7 +61,7 @@ const MainPage = () => {
                         <div className={"rounded-24 m-5"}>
                             <ReactPlayer
                                 controls={true}
-                                url={testVideo}
+                                // url={testVideo}
                                 light={<img src='/media/khare-khoob.jpeg' alt='Thumbnail'/>}
                                 style={{
                                     borderRadius: "16px 16px 16px 16px"
